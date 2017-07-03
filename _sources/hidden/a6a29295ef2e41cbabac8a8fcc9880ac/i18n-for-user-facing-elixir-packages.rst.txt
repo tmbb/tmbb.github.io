@@ -175,7 +175,7 @@ Inside your library, each time you need to display a message, you can now write 
 Note that:
 
 1. The library code doesn't deal with Gettext at all.
-It just uses the backend passed into the library's config.
+   It just uses the backend passed into the library's config.
    Gettext is just a little implementation detail.
 2. The ``:message_backend`` doesn't even need to use gettext.
    It just has to define the functions required by the behavior.

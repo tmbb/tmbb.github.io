@@ -19,7 +19,7 @@
             <link rel="stylesheet" href="../../_static/normalize.css" type="text/css">
             <link rel="stylesheet" href="../../_static/sphinx.css" type="text/css">
             <link rel="stylesheet" href="../../_static/main.css" type="text/css">
-            <link rel="stylesheet" href="../../_static/flat.css" type="text/css">
+            <link rel="stylesheet" href="../../_static/custom.css" type="text/css">
             <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
             <link rel="stylesheet" href="../../_static/font-awesome.min.css" type="text/css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" type="text/css" /><link rel="shortcut icon" href="../../_static/tinkerer.ico" /><!-- Load modernizr and JQuery -->
@@ -227,11 +227,10 @@ That way the strings won&#8217;t be translated, but your library will still work
 </pre></div>
 </div>
 <p>Note that:</p>
-<p>1. The library code doesn&#8217;t deal with Gettext at all.
-It just uses the backend passed into the library&#8217;s config.</p>
-<blockquote>
-<div>Gettext is just a little implementation detail.</div></blockquote>
-<ol class="arabic simple" start="2">
+<ol class="arabic simple">
+<li>The library code doesn&#8217;t deal with Gettext at all.
+It just uses the backend passed into the library&#8217;s config.
+Gettext is just a little implementation detail.</li>
 <li>The <span class="docutils literal"><span class="pre">:message_backend</span></span> doesn&#8217;t even need to use gettext.
 It just has to define the functions required by the behavior.</li>
 <li>Everything locale-related is done by the application&#8217;s code and not by the library.</li>
