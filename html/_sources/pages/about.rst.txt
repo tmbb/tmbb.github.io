@@ -1,0 +1,6 @@
+About
+=====
+
+This is a blog mostly about elixir programming.
+
+.. comments::

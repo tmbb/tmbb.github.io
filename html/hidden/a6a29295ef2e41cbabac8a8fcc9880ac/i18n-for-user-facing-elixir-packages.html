@@ -1,0 +1,464 @@
+<!DOCTYPE html><!--[if lt IE 7]>      <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:og="http://ogp.me/ns#"
+    xmlns:fb="https://www.facebook.com/2008/fbml" class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="description" content="A blog about elixir and other stuff">
+        <meta name="viewport" content="width=device-width">
+        <title>Internationalization for user facing elixir packages &mdash; BlogEx</title>
+            <link rel="stylesheet" href="../../_static/normalize.css" type="text/css">
+            <link rel="stylesheet" href="../../_static/sphinx.css" type="text/css">
+            <link rel="stylesheet" href="../../_static/main.css" type="text/css">
+            <link rel="stylesheet" href="../../_static/flat.css" type="text/css">
+            <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+            <link rel="stylesheet" href="../../_static/font-awesome.min.css" type="text/css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" type="text/css" /><link rel="shortcut icon" href="../../_static/tinkerer.ico" /><!-- Load modernizr and JQuery -->
+        <script src="../../_static/vendor/modernizr-2.6.2.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="../../_static/vendor/jquery-1.8.2.min.js"><\/script>')</script>
+        <script src="../../_static/plugins.js"></script>
+        <script src="../../_static/main.js"></script>
+        <link rel="search" title="Search" href="../../search.html" /><link rel="alternate" type="application/rss+xml" title="RSS" href="../../rss.html" /><script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.5.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        SOURCELINK_SUFFIX: '.txt',
+        HAS_SOURCE:  true
+      };
+    </script><script type="text/javascript" src="../../_static/underscore.js"></script><script type="text/javascript" src="../../_static/doctools.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Scroll to content if on small screen
+            if (screen.width < 480)
+            {
+                $(document).scrollTop(document.getElementsByTagName("article")[0].offsetTop - 44);
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+        renderMathInElement(document.body,
+            {
+                delimiters: [
+                    {left: "\\\\begin{equation*}", right: "\\\\end{equation*}", display: true},
+                    {left: "\\\[", right: "\\\]", display: true},
+                    {left: "\\\(", right: "\\\)", display: false}
+                ]
+            }
+        );
+    });
+    </script></head>
+    <body role="document">
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+      <div id="container"><header role="banner">
+            <hgroup>
+              <h1><a href="../../index.html">BlogEx</a></h1><h2>Concurrent Writes</h2></hgroup>
+          </header>
+      <nav role="navigation">
+            <ul><li class="main-nav">
+                  <a href="../../index.html">Blog</a>
+                </li>
+              <li class="main-nav">
+                  <a href="../../pages/about.html">About</a>
+                </li>
+              </ul>
+          </nav><div class="main-container" role="main"><div class="main wrapper body clearfix"><article>
+    <div class="section" id="internationalization-for-user-facing-elixir-packages">
+<h1>Internationalization for user facing elixir packages</h1>
+<p>For internationalization, elixir comes with the excellent <a class="reference external" href="https://hexdocs.pm/gettext/Gettext.html">gettext</a> package.
+Using this package to internationalize your <em>project</em> is pretty straightforward.
+However, suppose you&#8217;re writing a library meant to be used by someone else&#8217;s project.
+That library might export some user-visible strings, that is, strings visible to the end user of the application, not the developer.
+Those end-user strings should be internationalized.
+Up until now, there was no documentation on how to internationalize such library, or even a consensus on how to do it.
+This article aims to explain how to do it, using a model that worked well for a real world library.</p>
+<p>This article is <em>not</em> a tutorial on how to use gettext for internationalization of your <em>project</em>.
+That is very well covered in the gettext docs.
+This article is specifically for a library authors who want to use gettext for internationalization of your <em>library</em>.</p>
+<div class="section" id="gettext-functions-vs-macros">
+<h2>Gettext - Functions VS Macros</h2>
+<p>Hey</p>
+</div>
+<div class="section" id="the-problem">
+<h2>The Problem</h2>
+<p>When you use gettext, you have to define a Gettext backend <em>in your application</em> (in the case of Phoenix projects, the default skeleton already defines one for you).
+Let&#8217;s assume <span class="docutils literal"><span class="pre">YourProject.Web.Gettext</span></span> is your Gettext backend:</p>
+<div class="code elixir highlight-default"><div class="highlight"><pre><span></span><span class="n">defmodule</span> <span class="n">YourProject</span><span class="o">.</span><span class="n">Web</span><span class="o">.</span><span class="n">Gettext</span> <span class="n">do</span>
+  <span class="nd">@moduledoc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  ...</span>
+<span class="s2">  &quot;&quot;&quot;</span>
+  <span class="n">use</span> <span class="n">Gettext</span><span class="p">,</span> <span class="n">otp_app</span><span class="p">:</span> <span class="p">:</span><span class="n">your_project</span>
+<span class="n">end</span>
+</pre></div>
+</div>
+<p>Then, to internationalize your project, you wrap the user-facing strings with the <span class="docutils literal"><span class="pre">gettext</span></span> or <span class="docutils literal"><span class="pre">dgettext</span></span> macros <em>from your backend</em>.
+For example, if you want to translate a string in an controller, you have to <cite>import</cite> your backend:</p>
+<div class="code elixir highlight-default"><div class="highlight"><pre><span></span><span class="n">defmodule</span> <span class="n">YourController</span> <span class="n">do</span>
+  <span class="kn">import</span> <span class="nn">YourProject.Web.Gettext</span>
+
+  <span class="k">def</span> <span class="nf">route</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span> <span class="n">do</span>
+    <span class="c1"># Simple translation</span>
+    <span class="n">gettext</span> <span class="s2">&quot;Here is the string to translate&quot;</span>
+
+    <span class="c1"># Plural translation</span>
+    <span class="n">ngettext</span> <span class="s2">&quot;Here is the string to translate&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;Here are the strings to translate&quot;</span><span class="p">,</span>
+             <span class="mi">3</span>
+
+    <span class="c1"># Domain-based translation</span>
+    <span class="n">dgettext</span> <span class="s2">&quot;errors&quot;</span><span class="p">,</span> <span class="s2">&quot;Here is the error message to translate&quot;</span>
+
+    <span class="c1"># Other translations, etc...</span>
+  <span class="n">end</span>
+<span class="n">end</span>
+</pre></div>
+</div>
+<p>This is very important.
+You <em>can not</em> import the macros from Gettext.
+Why?
+Because gettext needs access to the backend at <em>compilation time</em> to generate the PO files, and if the backend is compiled outside your project, that&#8217;s not possible.
+When the <em>library</em> is compiled as a dependency, the <em>application</em> doesn&#8217;t even exist!
+How would the library know at compilation time anything at all about an application that only will exist in the future?</p>
+<p>Now, imagine there is a library you want to use that creates an HTML widget for you.
+That HTML widget might contain text.
+Suppose you want to translate that text.
+It&#8217;s not easy. The text might be deep inside the HTML code, and you have no access to it.
+The library author might allow you to customize the text by passing it as a parameter, but often, that&#8217;s inconvenient.
+Passing localized strings to every function is certainly not the best way.</p>
+</div>
+<div class="section" id="internationalizing-your-library">
+<h2>Internationalizing Your Library</h2>
+<p>The approach I&#8217;ll describe was developed for <a class="reference external" href="https://github.com/smpallen99/coherence">Coherence</a> by <a class="reference external" href="https://github.com/smpallen99">Steve Pallen</a> (the creator of Coherence)
+and <a class="reference external" href="https://github.com/josevalim">José Valim</a> (the creator of elixir and gettext), with a little input from myself.
+You can follow the discussion that led to the design decisions behind this implementation on this <a class="reference external" href="https://github.com/smpallen99/coherence/issues/185">Github issue</a>.</p>
+<p>This approach I&#8217;ll describe here is the one used very successfully by Coherence.
+It&#8217;s currently only available in an unreleased version, which will hopefully be released soon.
+So, if you need to internationalize Coherence, you&#8217;ll have to get it from Github.</p>
+<p>Our problem is:</p>
+<ol class="arabic simple">
+<li>We want to use gettext macros instead of functions, because macros give us POT file generation for free using <cite>mix gettext.extract</cite>.
+With functions we have to write our POT file ourselves.</li>
+<li>On the other hand, macros only work if they are imported from the user&#8217;s Gettext backend.
+This means we can&#8217;t use macros in the library, because when the library is compiled, the code doesn&#8217;t know about the user&#8217;s Gettext backend.</li>
+</ol>
+<p>We will take advantage of the fact that we can provide a Gettext backend <em>from the users applicaton</em> as a config option to <em>your library</em>.</p>
+<p>First, the user have to define a callback module that implements a behavior from your library.
+Each callback must return a user-facing message, wrapped in one of gettext&#8217;s macros from the user backend.
+The advantage of using a behavior is that if at a certain point new messages are defined in the library,
+the user receives a compiler warning if they aren&#8217;t implementing those messages.
+Let&#8217;s assume that the user is working on the <span class="docutils literal"><span class="pre">UserProject</span></span> application, and your library is <span class="docutils literal"><span class="pre">YourLibrary</span></span>.
+Let&#8217;s call this module the <em>message backend</em> for your library.
+The behavior could be:</p>
+<div class="code elixir highlight-default"><div class="highlight"><pre><span></span><span class="n">defmodule</span> <span class="n">UsersProject</span><span class="o">.</span><span class="n">YourLibrary</span><span class="o">.</span><span class="n">Messages</span> <span class="n">do</span>
+  <span class="c1"># The behavior implemented by the module</span>
+  <span class="c1"># As you can see behavior is defined in your library,</span>
+  <span class="c1"># not in the user&#39;s application</span>
+  <span class="nd">@behaviour</span> <span class="n">YourLibrary</span><span class="o">.</span><span class="n">Messages</span>
+
+  <span class="c1"># The user imports their own Gettext backend</span>
+  <span class="kn">import</span> <span class="nn">UsersProject.Web.Gettext</span>
+
+  <span class="c1"># In this example, messages belong to a domain,</span>
+  <span class="c1"># but that&#39;s not required.</span>
+  <span class="nd">@domain</span> <span class="s2">&quot;your_library&quot;</span>
+
+  <span class="k">def</span> <span class="nf">first_message</span><span class="p">()</span> <span class="n">do</span>
+    <span class="n">dgettext</span> <span class="nd">@domain</span><span class="p">,</span> <span class="s2">&quot;First Message&quot;</span>
+  <span class="n">end</span>
+
+  <span class="k">def</span> <span class="nf">second_message</span><span class="p">()</span> <span class="n">do</span>
+    <span class="n">dgettext</span> <span class="nd">@domain</span><span class="p">,</span> <span class="s2">&quot;Second Message&quot;</span>
+  <span class="n">end</span>
+
+  <span class="k">def</span> <span class="nf">third_message</span><span class="p">()</span> <span class="n">do</span>
+    <span class="n">dgettext</span> <span class="nd">@domain</span><span class="p">,</span> <span class="s2">&quot;Third Message&quot;</span>
+  <span class="n">end</span>
+<span class="n">end</span>
+</pre></div>
+</div>
+<p>Actually, you shouldn&#8217;t require the user to write this file.
+Your library should ship with a mix task to generate this file (replacing <span class="docutils literal"><span class="pre">UserProject</span></span> with the actual root module, of course).
+This way the user doesn&#8217;t even have to look into the contents of the files.
+It just has to run</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="n">mix</span> <span class="n">gettext</span><span class="o">.</span><span class="n">extract</span>
+</pre></div>
+</div>
+<p>And the POT file will be generated without further need for user intervention.</p>
+<p>Then, the user must pass the <span class="docutils literal"><span class="pre">UsersProject.YourLibrary.Messages</span></span> module as an argument to the library&#8217;s config:</p>
+<div class="code elixir highlight-default"><div class="highlight"><pre><span></span><span class="c1"># config/config.exs</span>
+<span class="n">use</span> <span class="n">Mix</span><span class="o">.</span><span class="n">Config</span>
+
+<span class="n">config</span> <span class="p">:</span><span class="n">coherence</span><span class="p">,</span>
+  <span class="c1"># You can choose an alternative name for your messages backend,</span>
+  <span class="c1"># but `message_backend` is a good default</span>
+  <span class="n">messages_backend</span><span class="p">:</span> <span class="n">UsersProject</span><span class="o">.</span><span class="n">YourLibrary</span><span class="o">.</span><span class="n">Messages</span>
+</pre></div>
+</div>
+<p>You should have a defaut message backend in case the user doesn&#8217;t provide their own.
+That way the strings won&#8217;t be translated, but your library will still work.</p>
+<p>Inside your library, each time you need to display a message, you can now write something like this:</p>
+<div class="code elixir highlight-default"><div class="highlight"><pre><span></span><span class="n">defmodule</span> <span class="n">YourLibrary</span><span class="o">.</span><span class="n">YourModule</span> <span class="n">do</span>
+  <span class="k">def</span> <span class="nf">do_stuff</span><span class="p">()</span> <span class="n">do</span>
+    <span class="c1"># ...</span>
+    <span class="c1"># get the backend</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">get_env</span><span class="p">(:</span><span class="n">your_library</span><span class="p">,</span> <span class="p">:</span><span class="n">messages_backend</span><span class="p">)</span>
+    <span class="c1"># get the message</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">first_message</span><span class="p">()</span>
+    <span class="c1"># ...</span>
+  <span class="n">end</span>
+<span class="n">end</span>
+</pre></div>
+</div>
+<p>Note that:</p>
+<p>1. The library code doesn&#8217;t deal with Gettext at all.
+It just uses the backend passed into the library&#8217;s config.</p>
+<blockquote>
+<div>Gettext is just a little implementation detail.</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>The <span class="docutils literal"><span class="pre">:message_backend</span></span> doesn&#8217;t even need to use gettext.
+It just has to define the functions required by the behavior.</li>
+<li>Everything locale-related is done by the application&#8217;s code and not by the library.</li>
+<li>Your app doesn&#8217;t use the Gettext macros, so it requires a little more work upfront.
+Instead of starting with raw strings wrapped in Gettext macros, you must use function calls.
+This makes your life as a library author a little less convenient, but makes it possible for your users to internationalize your messages.</li>
+</ol>
+</div>
+<div class="section" id="the-recipe">
+<h2>The Recipe</h2>
+<p>So, to summarize all that&#8217;s been said, here are the 4 steps for a library author to internationalize a library:</p>
+<ol class="arabic simple">
+<li>Define a <span class="docutils literal"><span class="pre">YourLibrary.Messages</span></span> behavior</li>
+<li>Add a <span class="docutils literal"><span class="pre">:messages_backend</span></span> option to your library&#8217;s configuration.</li>
+<li>Write a mix task to generate the callback module in the user&#8217;s source tree</li>
+<li>Document how to internationalize the library and explain how to add the relevant config option</li>
+</ol>
+<p>Now, let&#8217;s discuss a practical example of internationalizing a library.</p>
+</div>
+<div class="section" id="case-study-coherence">
+<h2>Case Study - Coherence</h2>
+<p><a class="reference external" href="https://github.com/smpallen99/coherence">Coherence</a> is an elixir package developed by <a class="reference external" href="https://github.com/smpallen99">Steve Pallen</a> for authentication in <a class="reference external" href="http://www.phoenixframework.org/">Phoenix</a> applications.
+It&#8217;s a very opinionated library, similar to <a class="reference external" href="https://github.com/plataformatec/devise">devise</a> (from the Rails world), or for someone who&#8217;s more into python,
+something like the <a class="reference external" href="https://github.com/lingthio/Flask-User">Flask-User package</a>, or the user management system in <a class="reference external" href="https://github.com/websauna/websauna">Websauna</a> (derived from Pyramid).
+It&#8217;s meant to be used in user-facing apps, and provides some useful functionality, like <em>login</em> with email and password, user <em>registration</em>, <em>confirmation</em> using email and a <em>password reset</em> mechanisms, among others.</p>
+<p>To support all these features, Coherence comes with a Mix task that will populate your applications&#8217;s source with templates, views and controllers.
+Because all this code is run from your application under the <span class="docutils literal"><span class="pre">YourProject</span></span> module, it has access to the gettext macros from your Gettext backend.
+Even if this code was generated by coherence, it is compiled as if it were your own code and is run as if you had written it yourself.
+As a result, you get translations for free without doing anything else.</p>
+<p>However, there are some other messages scattered around that are defined in Coherence&#8217;s source.
+Those are messages the user can&#8217;t customize.
+They&#8217;re email subject lines, flash messages, HTML button names, etc.
+As discussed above, they are defined in an environment that knows nothing about your code or your Gettext backend.</p>
+<p>So, how does Coherence handle internationalization?</p>
+<p>Exactly by following our 4 steps.
+Let&#8217;s discuss them and show some actual code.</p>
+<div class="section" id="define-a-coherence-messages-behavior">
+<h3>1. Define a <span class="docutils literal"><span class="pre">Coherence.Messages</span></span> Behavior</h3>
+<p>Coherence defines a file like <a class="reference external" href="https://github.com/smpallen99/coherence/blob/phx-1.3/lib/coherence/messages.ex">this</a>:</p>
+<div class="code elixir highlight-default"><div class="highlight"><pre><span></span><span class="c1"># lib/coherence/messages.ex</span>
+<span class="n">defmodule</span> <span class="n">Coherence</span><span class="o">.</span><span class="n">Messages</span> <span class="n">do</span>
+  <span class="nd">@moduledoc</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  Interface for handling localization of build in Coherence messages.</span>
+<span class="s2">  The following module defines the behaviour for rendering internal</span>
+<span class="s2">  coherence messages.</span>
+<span class="s2">  The coherence mix tasks generate a messages file in the user&#39;s app</span>
+<span class="s2">  that uses this behaviour to ensure the user has implement all the</span>
+<span class="s2">  required messages.</span>
+<span class="s2">  &quot;&quot;&quot;</span>
+
+  <span class="nd">@callback</span> <span class="n">cant_be_blank</span><span class="p">()</span> <span class="p">::</span> <span class="n">binary</span>
+  <span class="nd">@callback</span> <span class="n">invalid_current_password</span><span class="p">()</span> <span class="p">::</span> <span class="n">binary</span>
+  <span class="nd">@callback</span> <span class="n">account_already_confirmed</span><span class="p">()</span> <span class="p">::</span> <span class="n">binary</span>
+  <span class="c1"># ... more callback functions ...</span>
+
+  <span class="nd">@doc</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  Returns the Messages module from the users app&#39;s configuration</span>
+<span class="s2">  &quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="nf">backend</span> <span class="n">do</span>
+    <span class="n">Coherence</span><span class="o">.</span><span class="n">Config</span><span class="o">.</span><span class="n">messages_backend</span><span class="p">()</span>
+  <span class="n">end</span>
+<span class="n">end</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="add-a-messages-backend-to-your-library-s-config-options">
+<h3>2. Add a <span class="docutils literal"><span class="pre">:messages_backend</span></span> to your library&#8217;s config options</h3>
+<p>Coherence expects a number of config options, including, of course, <span class="docutils literal"><span class="pre">:messages_backend</span></span>,
+as defined in the <cite>lib/coherence/config.ex &lt;https://github.com/smpallen99/coherence/blob/phx-1.3/lib/coherence/config.ex&gt;</cite> file:</p>
+<div class="code elixir highlight-default"><div class="highlight"><pre><span></span><span class="c1"># lib/coherence/config.ex</span>
+<span class="n">defmodule</span> <span class="n">Coherence</span><span class="o">.</span><span class="n">Config</span> <span class="n">do</span>
+  <span class="nd">@moduledoc</span> <span class="s2">&quot;&quot;&quot;</span>
+
+<span class="s2">  # ... More docs ...</span>
+
+<span class="s2">  The following items are supported:</span>
+<span class="s2">  * :module: the name of project module (`module: MyProject`)</span>
+<span class="s2">  * :repo: the module name of your Repo (`repo: MyProject.Repo`)</span>
+
+<span class="s2">  ... More options ...</span>
+
+<span class="s2">  * :messages_backend - (MyApp.Coherence.Messages)</span>
+
+<span class="s2">  ... More docs ...</span>
+<span class="s2">  &quot;&quot;&quot;</span>
+
+  <span class="n">defmacro</span> <span class="n">__using__</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="n">do</span>
+    <span class="n">quote</span> <span class="n">do</span>
+      <span class="n">alias</span> <span class="n">unquote</span><span class="p">(</span><span class="n">__MODULE__</span><span class="p">)</span>
+    <span class="n">end</span>
+  <span class="n">end</span>
+
+  <span class="n">require</span> <span class="n">Logger</span>
+
+  <span class="c1"># opts: :all || [:trackable, :lockable, :rememberable, :confirmable]</span>
+  <span class="p">[</span>
+    <span class="c1"># ... More options ...</span>
+    <span class="p">:</span><span class="n">messages_backend</span><span class="p">,</span>
+    <span class="p">:</span><span class="n">router</span>
+  <span class="p">]</span>
+  <span class="c1"># These weird macro invocations are explained in the text</span>
+  <span class="o">|&gt;</span> <span class="n">Enum</span><span class="o">.</span><span class="n">each</span><span class="p">(</span><span class="n">fn</span>
+        <span class="p">{</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">}</span> <span class="o">-&gt;</span>
+          <span class="k">def</span> <span class="nf">unquote</span><span class="p">(</span><span class="n">key</span><span class="p">)(</span><span class="n">opts</span> \\ <span class="n">unquote</span><span class="p">(</span><span class="n">default</span><span class="p">))</span> <span class="n">do</span>
+            <span class="n">get_application_env</span> <span class="n">unquote</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">opts</span>
+          <span class="n">end</span>
+        <span class="n">key</span> <span class="o">-&gt;</span>
+          <span class="k">def</span> <span class="nf">unquote</span><span class="p">(</span><span class="n">key</span><span class="p">)(</span><span class="n">opts</span> \\ <span class="n">nil</span><span class="p">)</span> <span class="n">do</span>
+            <span class="n">get_application_env</span> <span class="n">unquote</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">opts</span>
+          <span class="n">end</span>
+    <span class="n">end</span><span class="p">)</span>
+  <span class="c1"># ... More code ...</span>
+<span class="n">end</span>
+</pre></div>
+</div>
+<p>The code above takes a list of atoms and defines a set of functions to make it easier to access config options
+without writing <span class="docutils literal"><span class="pre">get_application_env(:key)</span></span>. Instead, you can write <span class="docutils literal"><span class="pre">Coherence.Config.key()</span></span>.</p>
+<p>In the case of the <span class="docutils literal"><span class="pre">:messages_backend</span></span> option, this shorthand allows you to write <span class="docutils literal"><span class="pre">Coherence.Config.messages_backend()</span></span>.</p>
+</div>
+<div class="section" id="write-a-mix-task-to-generate-the-callback-module">
+<h3>3. Write a mix task to generate the callback module</h3>
+<p>Coherence is &#8220;installed&#8221; in your app by running the following mix tasks:</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="c1"># for phoenix 1.3 apps:</span>
+<span class="n">mix</span> <span class="n">coh</span><span class="o">.</span><span class="n">install</span> <span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span>
+<span class="c1"># or, for the phoenix 1.2 apps:</span>
+<span class="n">mix</span> <span class="n">coherence</span><span class="o">.</span><span class="n">install</span> <span class="o">&lt;</span><span class="n">options</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Besides populating your app&#8217;s source with generated controllers, templates and schemas, these tasks will generate the message backend.
+The tasks also insert a default Coherence configuration in your <span class="docutils literal"><span class="pre">config/config.ex</span></span>, so that you&#8217;re ready to go.
+The message backend for your application is generated according to the following <em>.eex</em> template:</p>
+<div class="code elixir highlight-default"><div class="highlight"><pre><span></span><span class="n">defmodule</span> <span class="o">&lt;%=</span> <span class="n">base</span> <span class="o">%&gt;.</span><span class="n">Coherence</span><span class="o">.</span><span class="n">Messages</span> <span class="n">do</span>
+  <span class="nd">@moduledoc</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  Application facing messages generated by the Coherence application.</span>
+<span class="s2">  This module was created by the coh.install mix task.</span>
+<span class="s2">  It contains all the messages used in the coherence application</span>
+<span class="s2">  except those in other generated files like the view and templates.</span>
+<span class="s2">  To assist in upgrading Coherence, the Coherence.Messages behaviour</span>
+<span class="s2">  will alway contain every message for the current version.</span>
+<span class="s2">  This will help in upgrades to ensure the user had added new</span>
+<span class="s2">  the new messages from the current version.</span>
+<span class="s2">  &quot;&quot;&quot;</span>
+  <span class="nd">@behaviour</span> <span class="n">Coherence</span><span class="o">.</span><span class="n">Messages</span>
+
+  <span class="kn">import</span> <span class="o">&lt;%=</span> <span class="n">base</span> <span class="o">%&gt;.</span><span class="n">Web</span><span class="o">.</span><span class="n">Gettext</span>
+
+  <span class="c1"># Change this to override the &quot;coherence&quot; gettext domain.</span>
+  <span class="c1"># If you would like the coherence message to be part of</span>
+  <span class="c1"># your projects domain change it to &quot;default&quot;</span>
+  <span class="nd">@domain</span> <span class="s2">&quot;coherence&quot;</span>
+
+  <span class="c1">##################</span>
+  <span class="c1"># Messages</span>
+
+  <span class="k">def</span> <span class="nf">account_already_confirmed</span><span class="p">,</span> <span class="n">do</span><span class="p">:</span>
+    <span class="n">dgettext</span><span class="p">(</span><span class="nd">@domain</span><span class="p">,</span> <span class="s2">&quot;Account already confirmed.&quot;</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">account_is_not_locked</span><span class="p">,</span> <span class="n">do</span><span class="p">:</span>
+    <span class="n">dgettext</span><span class="p">(</span><span class="nd">@domain</span><span class="p">,</span> <span class="s2">&quot;Account is not locked.&quot;</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">account_updated_successfully</span><span class="p">,</span> <span class="n">do</span><span class="p">:</span>
+    <span class="n">dgettext</span><span class="p">(</span><span class="nd">@domain</span><span class="p">,</span> <span class="s2">&quot;Account updated successfully.&quot;</span><span class="p">)</span>
+  <span class="c1"># ... More callback functions ...</span>
+<span class="n">end</span>
+</pre></div>
+</div>
+<p>In the template above, <span class="docutils literal"><span class="pre">&lt;%=</span> <span class="pre">base</span> <span class="pre">%&gt;</span></span> will be replaced by the user&#8217;s root module (<span class="docutils literal"><span class="pre">UsersProject</span></span> as we&#8217;ve been calling it).
+This module imports the user&#8217;s Gettext backend (the one in the official Phoenix 1.3 templates), as we&#8217;ve discussed above.
+Of course, if the the users have changed the backend&#8217;s name, they must change it here too.
+Coherence makes no attempt to find the user&#8217;s Gettext backend, and neither should your library.
+The template helpfully explains the user what it&#8217;s for, and even not that this file might need to be regenerated when coherence is upgraded.</p>
+</div>
+<div class="section" id="document-how-to-internationalize-the-library">
+<h3>4. Document how to Internationalize the Library</h3>
+<p>This is documented in <a class="reference external" href="https://github.com/smpallen99/coherence/tree/phx-1.3#localization-with-gettext">this section of the README</a>.
+Note that the docs don&#8217;t say that you must add the message backend to Coherence&#8217;s configuration, because that&#8217;s done automatically
+by the mix task that generates the backend.</p>
+<p>By default the mix tasks will generate a coherence config that looks like this:</p>
+<div class="code elixir highlight-default"><div class="highlight"><pre><span></span><span class="c1"># %% Coherence Configuration %%   Don&#39;t remove this line</span>
+<span class="n">config</span> <span class="p">:</span><span class="n">coherence</span><span class="p">,</span>
+  <span class="n">user_schema</span><span class="p">:</span> <span class="n">UsersProject</span><span class="o">.</span><span class="n">User</span><span class="p">,</span>
+  <span class="n">repo</span><span class="p">:</span> <span class="n">UsersProject</span><span class="o">.</span><span class="n">Repo</span><span class="p">,</span>
+  <span class="c1"># ... More options</span>
+  <span class="n">messages_backend</span><span class="p">:</span> <span class="n">UsersProject</span><span class="o">.</span><span class="n">Coherence</span><span class="o">.</span><span class="n">Messages</span><span class="p">,</span>
+  <span class="c1"># ... More options</span>
+
+<span class="n">config</span> <span class="p">:</span><span class="n">coherence</span><span class="p">,</span> <span class="n">UsersProject</span><span class="o">.</span><span class="n">Coherence</span><span class="o">.</span><span class="n">Mailer</span><span class="p">,</span>
+  <span class="n">adapter</span><span class="p">:</span> <span class="n">Swoosh</span><span class="o">.</span><span class="n">Adapters</span><span class="o">.</span><span class="n">Sendgrid</span>
+<span class="c1"># %% End Coherence Configuration %%</span>
+</pre></div>
+</div>
+<p>To dive deeper into the implementation of the 4 steps, please read <a class="reference external" href="https://github.com/smpallen99/coherence/tree/phx-1.3">Coherence&#8217;s source on Github (branch phx-1.3)</a>.
+At the time of writing, this functionality is not yet in the <em>master</em> branch.</p>
+</div>
+</div>
+<div class="section" id="other-libraries">
+<h2>Other Libraries</h2>
+<p><a class="reference external" href="https://github.com/smpallen99">Steve Pallen</a> is also the author of <a class="reference external" href="https://github.com/smpallen99/ex_admin">ExAdmin</a>
+(an admin interface for Phoenix, inspired by <a class="reference external" href="https://activeadmin.info/">ActiveAdmin</a>).</p>
+<p>He&#8217;s working on a replacement for ExAdmin named Talon, which you can find here.
+That project is also using this approach to internationalize user-facing strings.</p>
+</div>
+</div>
+
+    <div class="postmeta">
+        <div class="author">
+            <span>Posted by tmbb</span>
+        </div>
+        
+        
+        </div></article><aside class="sidebar"><section><div class="widget">
+    <h1>Recent Posts</h1>
+    <ul><li>
+            <a href="../../2017/07/01/hello.html">Hello</a>
+        </li></ul>
+</div>
+</section><section><div class="widget" id="searchbox" role="search">
+    <h1><a href="#searchbox">Search</a></h1>
+    <form action="../../search.html" method="get">
+        <input type="text" name="q" />
+        <button type="submit"><span class="fa fa-search"></span></button>
+    </form>
+</div></section></aside></div> <!-- #main --></div> <!-- #main-container -->
+
+        <div class="footer-container" role="contentinfo"><footer class="wrapper">&copy; Copyright 2017, tmbb. Powered by <a href="http://www.tinkerer.me/">Tinkerer</a> and <a href="http://sphinx.pocoo.org/">Sphinx</a>.</footer></div> <!-- footer-container -->
+
+      </div> <!--! end of #container --><!--[if lt IE 7 ]>
+          <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+          <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+        <![endif]-->
+    </body>
+</html>

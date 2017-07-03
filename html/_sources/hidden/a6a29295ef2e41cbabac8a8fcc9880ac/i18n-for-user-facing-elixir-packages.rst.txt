@@ -1,0 +1,409 @@
+Internationalization for user facing elixir packages
+====================================================
+
+For internationalization, elixir comes with the excellent `gettext <https://hexdocs.pm/gettext/Gettext.html>`_ package.
+Using this package to internationalize your *project* is pretty straightforward.
+However, suppose you're writing a library meant to be used by someone else's project.
+That library might export some user-visible strings, that is, strings visible to the end user of the application, not the developer.
+Those end-user strings should be internationalized.
+Up until now, there was no documentation on how to internationalize such library, or even a consensus on how to do it.
+This article aims to explain how to do it, using a model that worked well for a real world library.
+
+This article is *not* a tutorial on how to use gettext for internationalization of your *project*.
+That is very well covered in the gettext docs.
+This article is specifically for a library authors who want to use gettext for internationalization of your *library*.
+
+Gettext - Functions VS Macros
+-----------------------------
+
+Hey
+
+The Problem
+-----------
+
+When you use gettext, you have to define a Gettext backend *in your application* (in the case of Phoenix projects, the default skeleton already defines one for you).
+Let's assume ``YourProject.Web.Gettext`` is your Gettext backend:
+
+.. code:: elixir
+
+    defmodule YourProject.Web.Gettext do
+      @moduledoc = """
+      ...
+      """
+      use Gettext, otp_app: :your_project
+    end
+
+
+Then, to internationalize your project, you wrap the user-facing strings with the ``gettext`` or ``dgettext`` macros *from your backend*.
+For example, if you want to translate a string in an controller, you have to `import` your backend:
+
+.. code:: elixir
+
+    defmodule YourController do
+      import YourProject.Web.Gettext
+
+      def route(conn, params) do
+        # Simple translation
+        gettext "Here is the string to translate"
+
+        # Plural translation
+        ngettext "Here is the string to translate",
+                 "Here are the strings to translate",
+                 3
+
+        # Domain-based translation
+        dgettext "errors", "Here is the error message to translate"
+        
+        # Other translations, etc...
+      end
+    end
+
+
+This is very important.
+You *can not* import the macros from Gettext.
+Why?
+Because gettext needs access to the backend at *compilation time* to generate the PO files, and if the backend is compiled outside your project, that's not possible.
+When the *library* is compiled as a dependency, the *application* doesn't even exist!
+How would the library know at compilation time anything at all about an application that only will exist in the future?
+
+Now, imagine there is a library you want to use that creates an HTML widget for you.
+That HTML widget might contain text.
+Suppose you want to translate that text.
+It's not easy. The text might be deep inside the HTML code, and you have no access to it.
+The library author might allow you to customize the text by passing it as a parameter, but often, that's inconvenient.
+Passing localized strings to every function is certainly not the best way.
+
+
+Internationalizing Your Library
+-------------------------------
+
+The approach I'll describe was developed for `Coherence <https://github.com/smpallen99/coherence>`_ by `Steve Pallen <https://github.com/smpallen99>`_ (the creator of Coherence)
+and `José Valim <https://github.com/josevalim>`_ (the creator of elixir and gettext), with a little input from myself.
+You can follow the discussion that led to the design decisions behind this implementation on this `Github issue <https://github.com/smpallen99/coherence/issues/185>`_.
+
+This approach I'll describe here is the one used very successfully by Coherence.
+It's currently only available in an unreleased version, which will hopefully be released soon.
+So, if you need to internationalize Coherence, you'll have to get it from Github.
+
+Our problem is:
+
+1. We want to use gettext macros instead of functions, because macros give us POT file generation for free using `mix gettext.extract`.
+   With functions we have to write our POT file ourselves.
+2. On the other hand, macros only work if they are imported from the user's Gettext backend.
+   This means we can't use macros in the library, because when the library is compiled, the code doesn't know about the user's Gettext backend.
+   
+We will take advantage of the fact that we can provide a Gettext backend *from the users applicaton* as a config option to *your library*.
+
+First, the user have to define a callback module that implements a behavior from your library.
+Each callback must return a user-facing message, wrapped in one of gettext's macros from the user backend.
+The advantage of using a behavior is that if at a certain point new messages are defined in the library,
+the user receives a compiler warning if they aren't implementing those messages.
+Let's assume that the user is working on the ``UserProject`` application, and your library is ``YourLibrary``.
+Let's call this module the *message backend* for your library.
+The behavior could be:
+
+.. code:: elixir
+
+    defmodule UsersProject.YourLibrary.Messages do
+      # The behavior implemented by the module
+      # As you can see behavior is defined in your library,
+      # not in the user's application
+      @behaviour YourLibrary.Messages
+      
+      # The user imports their own Gettext backend
+      import UsersProject.Web.Gettext
+      
+      # In this example, messages belong to a domain,
+      # but that's not required.
+      @domain "your_library"
+
+      def first_message() do
+        dgettext @domain, "First Message"
+      end
+
+      def second_message() do
+        dgettext @domain, "Second Message"
+      end
+
+      def third_message() do
+        dgettext @domain, "Third Message"
+      end
+    end
+
+Actually, you shouldn't require the user to write this file.
+Your library should ship with a mix task to generate this file (replacing ``UserProject`` with the actual root module, of course).
+This way the user doesn't even have to look into the contents of the files.
+It just has to run
+
+.. code::
+
+    mix gettext.extract
+
+And the POT file will be generated without further need for user intervention.
+
+Then, the user must pass the ``UsersProject.YourLibrary.Messages`` module as an argument to the library's config:
+
+.. code:: elixir
+
+    # config/config.exs
+    use Mix.Config
+
+    config :coherence,
+      # You can choose an alternative name for your messages backend,
+      # but `message_backend` is a good default
+      messages_backend: UsersProject.YourLibrary.Messages
+
+
+You should have a defaut message backend in case the user doesn't provide their own.
+That way the strings won't be translated, but your library will still work.
+
+Inside your library, each time you need to display a message, you can now write something like this:
+
+.. code:: elixir
+
+    defmodule YourLibrary.YourModule do
+      def do_stuff() do
+        # ...
+        # get the backend
+        backend = Application.get_env(:your_library, :messages_backend)
+        # get the message
+        message = backend.first_message()
+        # ...
+      end
+    end
+
+Note that:
+
+1. The library code doesn't deal with Gettext at all.
+It just uses the backend passed into the library's config.
+   Gettext is just a little implementation detail.
+2. The ``:message_backend`` doesn't even need to use gettext.
+   It just has to define the functions required by the behavior.
+3. Everything locale-related is done by the application's code and not by the library.
+4. Your app doesn't use the Gettext macros, so it requires a little more work upfront.
+   Instead of starting with raw strings wrapped in Gettext macros, you must use function calls.
+   This makes your life as a library author a little less convenient, but makes it possible for your users to internationalize your messages.
+
+The Recipe
+----------
+
+So, to summarize all that's been said, here are the 4 steps for a library author to internationalize a library:
+
+1. Define a ``YourLibrary.Messages`` behavior
+2. Add a ``:messages_backend`` option to your library's configuration.
+3. Write a mix task to generate the callback module in the user's source tree
+4. Document how to internationalize the library and explain how to add the relevant config option
+
+Now, let's discuss a practical example of internationalizing a library.
+
+Case Study - Coherence
+----------------------
+
+`Coherence <https://github.com/smpallen99/coherence>`_ is an elixir package developed by `Steve Pallen <https://github.com/smpallen99>`_ for authentication in `Phoenix <http://www.phoenixframework.org/>`_ applications.
+It's a very opinionated library, similar to `devise <https://github.com/plataformatec/devise>`_ (from the Rails world), or for someone who's more into python,
+something like the `Flask-User package <https://github.com/lingthio/Flask-User>`_, or the user management system in `Websauna <https://github.com/websauna/websauna>`_ (derived from Pyramid).
+It's meant to be used in user-facing apps, and provides some useful functionality, like *login* with email and password, user *registration*, *confirmation* using email and a *password reset* mechanisms, among others.
+
+To support all these features, Coherence comes with a Mix task that will populate your applications's source with templates, views and controllers.
+Because all this code is run from your application under the ``YourProject`` module, it has access to the gettext macros from your Gettext backend.
+Even if this code was generated by coherence, it is compiled as if it were your own code and is run as if you had written it yourself.
+As a result, you get translations for free without doing anything else.
+
+However, there are some other messages scattered around that are defined in Coherence's source.
+Those are messages the user can't customize.
+They're email subject lines, flash messages, HTML button names, etc.
+As discussed above, they are defined in an environment that knows nothing about your code or your Gettext backend.
+
+So, how does Coherence handle internationalization?
+
+Exactly by following our 4 steps.
+Let's discuss them and show some actual code.
+
+1. Define a ``Coherence.Messages`` Behavior
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Coherence defines a file like `this <https://github.com/smpallen99/coherence/blob/phx-1.3/lib/coherence/messages.ex>`_:
+
+.. code:: elixir
+
+    # lib/coherence/messages.ex
+    defmodule Coherence.Messages do
+      @moduledoc """
+      Interface for handling localization of build in Coherence messages.
+      The following module defines the behaviour for rendering internal
+      coherence messages.
+      The coherence mix tasks generate a messages file in the user's app
+      that uses this behaviour to ensure the user has implement all the
+      required messages.
+      """
+
+      @callback cant_be_blank() :: binary
+      @callback invalid_current_password() :: binary
+      @callback account_already_confirmed() :: binary
+      # ... more callback functions ...
+
+      @doc """
+      Returns the Messages module from the users app's configuration
+      """
+      def backend do
+        Coherence.Config.messages_backend()
+      end
+    end
+
+
+2. Add a ``:messages_backend`` to your library's config options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Coherence expects a number of config options, including, of course, ``:messages_backend``,
+as defined in the `lib/coherence/config.ex <https://github.com/smpallen99/coherence/blob/phx-1.3/lib/coherence/config.ex>` file:
+
+.. code:: elixir
+
+    # lib/coherence/config.ex
+    defmodule Coherence.Config do
+      @moduledoc """
+      
+      # ... More docs ...
+
+      The following items are supported:
+      * :module: the name of project module (`module: MyProject`)
+      * :repo: the module name of your Repo (`repo: MyProject.Repo`)
+      
+      ... More options ...
+
+      * :messages_backend - (MyApp.Coherence.Messages)
+
+      ... More docs ...
+      """
+
+      defmacro __using__(_) do
+        quote do
+          alias unquote(__MODULE__)
+        end
+      end
+
+      require Logger
+
+      # opts: :all || [:trackable, :lockable, :rememberable, :confirmable]
+      [
+        # ... More options ...
+        :messages_backend,
+        :router
+      ]
+      # These weird macro invocations are explained in the text
+      |> Enum.each(fn
+            {key, default} ->
+              def unquote(key)(opts \\ unquote(default)) do
+                get_application_env unquote(key), opts
+              end
+            key ->
+              def unquote(key)(opts \\ nil) do
+                get_application_env unquote(key), opts
+              end
+        end)
+      # ... More code ...
+    end
+
+The code above takes a list of atoms and defines a set of functions to make it easier to access config options
+without writing ``get_application_env(:key)``. Instead, you can write ``Coherence.Config.key()``.
+
+In the case of the ``:messages_backend`` option, this shorthand allows you to write ``Coherence.Config.messages_backend()``.
+
+
+3. Write a mix task to generate the callback module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Coherence is "installed" in your app by running the following mix tasks:
+
+.. code:: bash
+
+  # for phoenix 1.3 apps:
+  mix coh.install <options>
+  # or, for the phoenix 1.2 apps:
+  mix coherence.install <options>
+
+Besides populating your app's source with generated controllers, templates and schemas, these tasks will generate the message backend.
+The tasks also insert a default Coherence configuration in your ``config/config.ex``, so that you're ready to go.
+The message backend for your application is generated according to the following *.eex* template:
+
+.. code:: elixir
+
+  defmodule <%= base %>.Coherence.Messages do
+    @moduledoc """
+    Application facing messages generated by the Coherence application.
+    This module was created by the coh.install mix task.
+    It contains all the messages used in the coherence application
+    except those in other generated files like the view and templates.
+    To assist in upgrading Coherence, the Coherence.Messages behaviour
+    will alway contain every message for the current version. 
+    This will help in upgrades to ensure the user had added new
+    the new messages from the current version.
+    """
+    @behaviour Coherence.Messages
+
+    import <%= base %>.Web.Gettext
+
+    # Change this to override the "coherence" gettext domain.
+    # If you would like the coherence message to be part of
+    # your projects domain change it to "default"
+    @domain "coherence"
+
+    ##################
+    # Messages
+
+    def account_already_confirmed, do:
+      dgettext(@domain, "Account already confirmed.")
+    def account_is_not_locked, do:
+      dgettext(@domain, "Account is not locked.")
+    def account_updated_successfully, do:
+      dgettext(@domain, "Account updated successfully.")
+    # ... More callback functions ...
+  end
+
+In the template above, ``<%= base %>`` will be replaced by the user's root module (``UsersProject`` as we've been calling it).
+This module imports the user's Gettext backend (the one in the official Phoenix 1.3 templates), as we've discussed above.
+Of course, if the the users have changed the backend's name, they must change it here too.
+Coherence makes no attempt to find the user's Gettext backend, and neither should your library.
+The template helpfully explains the user what it's for, and even not that this file might need to be regenerated when coherence is upgraded.
+
+
+4. Document how to Internationalize the Library
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is documented in `this section of the README <https://github.com/smpallen99/coherence/tree/phx-1.3#localization-with-gettext>`_.
+Note that the docs don't say that you must add the message backend to Coherence's configuration, because that's done automatically
+by the mix task that generates the backend.
+
+By default the mix tasks will generate a coherence config that looks like this:
+
+.. code:: elixir
+
+  # %% Coherence Configuration %%   Don't remove this line
+  config :coherence,
+    user_schema: UsersProject.User,
+    repo: UsersProject.Repo,
+    # ... More options
+    messages_backend: UsersProject.Coherence.Messages,
+    # ... More options
+
+  config :coherence, UsersProject.Coherence.Mailer,
+    adapter: Swoosh.Adapters.Sendgrid
+  # %% End Coherence Configuration %%
+
+To dive deeper into the implementation of the 4 steps, please read `Coherence's source on Github (branch phx-1.3) <https://github.com/smpallen99/coherence/tree/phx-1.3>`_.
+At the time of writing, this functionality is not yet in the *master* branch.
+
+Other Libraries
+---------------
+
+`Steve Pallen <https://github.com/smpallen99>`_ is also the author of `ExAdmin <https://github.com/smpallen99/ex_admin>`_
+(an admin interface for Phoenix, inspired by `ActiveAdmin <https://activeadmin.info/>`_).
+
+He's working on a replacement for ExAdmin named Talon, which you can find here.
+That project is also using this approach to internationalize user-facing strings.
+
+
+.. author:: default
+.. categories:: none
+.. tags:: none
+.. comments::
